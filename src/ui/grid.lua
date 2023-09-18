@@ -2,7 +2,6 @@ local grid={}
 grid.__index=grid
 
 local mouseX,mouseY=0,0
-local axis_text_offset=20
 
 local function render_grid(self)
 	local window={
@@ -23,11 +22,11 @@ local function render_grid(self)
 		x2,-window.y,
 		x2,window.y
 	)
-	if self.show_pointer_location then
+	if self.pointer_location then
 		mouseX,mouseY=love.mouse.getPosition()
 
 	end
-	if self.show_axis_text then
+	if self.axis_text then
 		love.graphics.setFont(love.graphics.newFont(25))
 		love.graphics.setColor(1,0,0)
 		love.graphics.print("X",5,y2+5)
@@ -35,7 +34,14 @@ local function render_grid(self)
 		love.graphics.print("Y",x2+5,0)
 		love.graphics.setFont(love.graphics.newFont(15))
 		love.graphics.setColor(0,1,1)
-		love.graphics.print("("..tostring(mouseX)..", "..tostring(mouseY)..")", mouseX+axis_text_offset, mouseY+axis_text_offset)
+		local cord_display="("..tostring(x2-mouseX)..", "..tostring(y2-mouseY)..")"
+		local xx10=(window.x-mouseX)/10
+		local yy10=(window.y-mouseY)/10
+		local bounds_offset={
+			x=xx10<=#cord_display and window.x-#cord_display or mouseX+20,
+			y=yy10<=#cord_display and #cord_display or mouseY+20
+		}
+		love.graphics.print(cord_display, bounds_offset.x, bounds_offset.y)
 	end
 end
 
@@ -45,7 +51,7 @@ function grid.new(show_axis_text, show_pointer_location)
 		pointer_location=show_pointer_location or true,
 		showing=true
 	}
-	return setmetatable(grid,self)
+	return setmetatable(self,grid)
 end
 
 function grid:spawn()
